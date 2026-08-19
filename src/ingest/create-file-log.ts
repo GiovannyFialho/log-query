@@ -5,7 +5,7 @@ mkdirSync("./src/database", { recursive: true });
 
 const stream = createWriteStream("./src/database/access.log");
 
-for (let i = 1; i <= 1_000_000; i++) {
+for (let i = 1; i <= 10; i++) {
   if (i % 100 === 0) {
     stream.write("\n");
 
