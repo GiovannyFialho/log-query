@@ -1,17 +1,80 @@
+import { google } from "@ai-sdk/google";
+import { generateText } from "ai";
 import { createInterface } from "node:readline";
 
-import { getTotalAccessLogs } from "../database/queries.ts";
+import database from "../database/database.ts";
+import { isSafeQuery } from "../database/validate-sql.ts";
 
 const rl = createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
-rl.question("Faça uma pergunta: ", (question) => {
-  console.log(`Você perguntou: ${question}`);
+rl.question("Digite sua pergunta: ", async (question) => {
+  const result = await generateText({
+    model: google("gemini-3.5-flash-lite"),
+    prompt: `
+      Você é um assistente especializado em SQLite.
 
-  const result = getTotalAccessLogs();
-  console.log(result?.total);
+      Você precisa transformar a pergunta do usuário em uma consulta SQL.
 
-  rl.close();
+      A tabela disponível no banco é:
+
+      access_logs (
+        id TEXT,
+        ip TEXT,
+        username TEXT,
+        first_name TEXT,
+        last_name TEXT,
+        email TEXT,
+        location TEXT,
+        job_area TEXT,
+        company TEXT,
+        job_title TEXT,
+        timestamp TEXT
+      )
+
+      Gere apenas uma consulta SELECT válida para SQLite.
+
+      Não use blocos Markdown ou qualquer outro tipo de formatação, inclusive usando aspas.
+      Retorne somente a consulta SQL em texto puro.
+
+      Não use INSERT, UPDATE, DELETE, DROP, ALTER, CREATE,
+      REPLACE, PRAGMA, ATTACH, DETACH ou VACUUM.
+
+      Pergunta do usuário: ${question}
+    `,
+  });
+
+  const sql = result.text
+    .replace(/```sql/gi, "")
+    .replace(/```/g, "")
+    .trim();
+
+  if (!isSafeQuery(sql)) {
+    console.log(
+      "A consulta SQL gerada não é segura. Por favor, tente novamente.",
+    );
+
+    rl.close();
+
+    return;
+  }
+
+  rl.question("Deseja executar a consulta SQL? (s/n): ", async (answer) => {
+    if (answer.toLowerCase() !== "s") {
+      console.log("Consulta cancelada.");
+      rl.close();
+
+      return;
+    }
+
+    console.log("Consulta aprovada!");
+
+    const result = database.prepare(sql).all();
+
+    console.log("Resultado da consulta SQL:", result);
+
+    rl.close();
+  });
 });
