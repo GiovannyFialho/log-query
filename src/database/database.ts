@@ -18,4 +18,21 @@ database.exec(`
   )
 `);
 
+export const insertAccessLog = database.prepare(`
+  INSERT INTO access_logs (
+    id,
+    ip,
+    username,
+    first_name,
+    last_name,
+    email,
+    location,
+    job_area,
+    company,
+    job_title,
+    timestamp
+  )
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`);
+
 export default database;
