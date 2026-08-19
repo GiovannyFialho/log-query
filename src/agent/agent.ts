@@ -73,7 +73,8 @@ rl.question("Digite sua pergunta: ", async (question) => {
 
     const result = database.prepare(sql).all();
 
-    console.log("Resultado da consulta SQL:", result);
+    console.log("Resultado da consulta SQL:");
+    console.table(result);
 
     rl.close();
   });
