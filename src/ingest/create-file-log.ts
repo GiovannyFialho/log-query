@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { createWriteStream } from "node:fs";
+import { createWriteStream, mkdirSync } from "node:fs";
+
+mkdirSync("./src/database", { recursive: true });
 
 const stream = createWriteStream("./src/database/access.log");
 
