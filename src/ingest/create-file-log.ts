@@ -3,7 +3,7 @@ import { createWriteStream } from "node:fs";
 
 const stream = createWriteStream("./src/database/access.log");
 
-for (let i = 1; i <= 5; i++) {
+for (let i = 1; i <= 1_000_000; i++) {
   stream.write(
     JSON.stringify({
       id: randomUUID(),
