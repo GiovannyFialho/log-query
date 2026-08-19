@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node src/index.ts",
     "create-file-log": "node src/ingest/create-file-log.ts",
-    "ingest-file-log": "node src/ingest/ingest-file-log.ts"
+    "ingest-file-log": "node src/ingest/ingest-file-log.ts",
+    "agent": "node src/agent/agent.ts"
   },
   "keywords": [],
   "author": "",

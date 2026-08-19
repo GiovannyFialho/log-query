@@ -5,12 +5,27 @@ mkdirSync("./src/database", { recursive: true });
 
 const stream = createWriteStream("./src/database/access.log");
 
-for (let i = 1; i <= 10; i++) {
+const companies = [
+  "TechSolutions",
+  "InnovaCorp",
+  "AlphaMedia",
+  "QuantumLabs",
+  "DeltaFinance",
+  "NexusLogistics",
+  "ApexHealth",
+  "EcoEnergy",
+  "StellarRetail",
+  "VortexConsulting",
+];
+
+for (let i = 1; i <= 20; i++) {
   if (i % 100 === 0) {
     stream.write("\n");
 
     continue;
   }
+
+  const randomCompany = companies[Math.floor(Math.random() * companies.length)];
 
   stream.write(
     JSON.stringify({
@@ -22,7 +37,7 @@ for (let i = 1; i <= 10; i++) {
       email: `user${i}@example.com`,
       location: `Location ${i}`,
       job_area: `Job Area ${i}`,
-      company: `Company ${i}`,
+      company: randomCompany,
       job_title: `Job Title ${i}`,
       timestamp: new Date().toISOString(),
     }) + "\n",
