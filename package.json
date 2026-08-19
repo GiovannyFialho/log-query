@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "start": "node src/index.ts"
+    "start": "node src/index.ts",
+    "create-file-log": "node src/ingest/create-file-log.ts"
   },
   "keywords": [],
   "author": "",
