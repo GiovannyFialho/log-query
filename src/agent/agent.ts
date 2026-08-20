@@ -12,11 +12,11 @@ const rl = createInterface({
 
 async function startPrompt() {
   rl.question(
-    "\n Digite sua pergunta (ou 'sair' para encerrar): ",
+    "\n Enter your question (or type 'exit' to quit): ",
 
     async (question) => {
-      if (question.toLowerCase().trim() === "sair") {
-        console.log("Encerrando o programa...");
+      if (question.toLowerCase().trim() === "exit") {
+        console.log("Closing the program...");
         rl.close();
 
         return;
@@ -25,11 +25,11 @@ async function startPrompt() {
       const result = await generateText({
         model: google("gemini-3.5-flash-lite"),
         prompt: `
-          Você é um assistente especializado em SQLite. 
+          You are an expert assistant specialized in SQLite. 
+            
+          You must transform the user's question into a valid SQL query. 
           
-          Você precisa transformar a pergunta do usuário em uma consulta SQL. 
-          
-          A tabela disponível no banco é: 
+          The available table in the database is: 
           access_logs ( 
             id TEXT, 
             ip TEXT, 
@@ -44,15 +44,13 @@ async function startPrompt() {
             timestamp TEXT 
           ) 
             
-          Gere apenas uma consulta SELECT válida para SQLite. 
+          Generate ONLY a valid SELECT query for SQLite. 
           
-          Não use blocos Markdown ou qualquer outro tipo de formatação, inclusive usando aspas. Retorne somente a consulta SQL em texto puro. 
+          Do not use Markdown blocks or any other type of formatting, including quotes around the whole block. Return ONLY the raw SQL query text. 
           
-          Não use INSERT, UPDATE,  DELETE, 
-          DROP, ALTER, CREATE, REPLACE, PRAGMA, 
-          ATTACH, DETACH ou VACUUM.
+          Do not use INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, REPLACE, PRAGMA, ATTACH, DETACH, or VACUUM.
           
-          Pergunta do usuário: ${question}
+          User question: ${question}
         `,
       });
 
@@ -62,33 +60,38 @@ async function startPrompt() {
         .trim();
 
       if (!isSafeQuery(sql)) {
-        console.log(
-          "A consulta SQL gerada não é segura. Por favor, tente novamente.",
-        );
+        console.log("The generated SQL query is not safe. Please try again.");
 
         startPrompt();
 
         return;
       }
 
-      console.log(`\n SQL Gerada: ${sql}`);
+      console.log(`\n Generated SQL: ${sql}`);
 
-      rl.question("Deseja executar a consulta SQL? (s/n): ", async (answer) => {
-        if (answer.toLowerCase() === "s") {
-          try {
-            const result = database.prepare(sql).all();
+      rl.question(
+        "Do you want to execute this SQL query? (y/n): ",
 
-            console.log("Consulta aprovada! Resultado da consulta SQL:");
-            console.table(result);
-          } catch (error) {
-            console.error("Erro ao executar a consulta no banco:", error);
+        async (answer) => {
+          if (answer.toLowerCase() === "y") {
+            try {
+              const result = database.prepare(sql).all();
+
+              console.log("Query approved! SQL query results:");
+              console.table(result);
+            } catch (error) {
+              console.error(
+                "Error executing the query in the database:",
+                error,
+              );
+            }
+          } else {
+            console.log("Query canceled.");
           }
-        } else {
-          console.log("Consulta cancelada.");
-        }
 
-        startPrompt();
-      });
+          startPrompt();
+        },
+      );
     },
   );
 }
