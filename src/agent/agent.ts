@@ -10,7 +10,7 @@ const rl = createInterface({
   output: process.stdout,
 });
 
-async function iniciarPrompt() {
+async function startPrompt() {
   rl.question(
     "\n Digite sua pergunta (ou 'sair' para encerrar): ",
 
@@ -25,37 +25,35 @@ async function iniciarPrompt() {
       const result = await generateText({
         model: google("gemini-3.5-flash-lite"),
         prompt: `
-        Você é um assistente especializado em SQLite. 
-        
-        Você precisa transformar a pergunta do usuário em uma consulta SQL. 
-        
-        A tabela disponível no banco é: 
-        access_logs ( 
-          id TEXT, 
-          ip TEXT, 
-          username TEXT, 
-          first_name TEXT, 
-          last_name TEXT, 
-          email TEXT, 
-          location TEXT, 
-          job_area TEXT, 
-          company TEXT, 
-          job_title TEXT, 
-          timestamp TEXT 
-        ) 
+          Você é um assistente especializado em SQLite. 
           
-        Gere apenas uma consulta SELECT válida para SQLite. 
-        
-        Não use blocos Markdown ou qualquer outro tipo de formatação, inclusive usando aspas. 
-        
-        Retorne somente a consulta SQL em texto puro. 
-        
-        Não use INSERT, UPDATE,  DELETE, 
-        DROP, ALTER, CREATE, REPLACE, PRAGMA, 
-        ATTACH, DETACH ou VACUUM.
-        
-        Pergunta do usuário: ${question}
-      `,
+          Você precisa transformar a pergunta do usuário em uma consulta SQL. 
+          
+          A tabela disponível no banco é: 
+          access_logs ( 
+            id TEXT, 
+            ip TEXT, 
+            username TEXT, 
+            first_name TEXT, 
+            last_name TEXT, 
+            email TEXT, 
+            location TEXT, 
+            job_area TEXT, 
+            company TEXT, 
+            job_title TEXT, 
+            timestamp TEXT 
+          ) 
+            
+          Gere apenas uma consulta SELECT válida para SQLite. 
+          
+          Não use blocos Markdown ou qualquer outro tipo de formatação, inclusive usando aspas. Retorne somente a consulta SQL em texto puro. 
+          
+          Não use INSERT, UPDATE,  DELETE, 
+          DROP, ALTER, CREATE, REPLACE, PRAGMA, 
+          ATTACH, DETACH ou VACUUM.
+          
+          Pergunta do usuário: ${question}
+        `,
       });
 
       const sql = result.text
@@ -68,7 +66,7 @@ async function iniciarPrompt() {
           "A consulta SQL gerada não é segura. Por favor, tente novamente.",
         );
 
-        iniciarPrompt();
+        startPrompt();
 
         return;
       }
@@ -80,6 +78,7 @@ async function iniciarPrompt() {
           try {
             console.log("Consulta aprovada!");
             const result = database.prepare(sql).all();
+
             console.log("Resultado da consulta SQL:");
             console.table(result);
           } catch (error) {
@@ -89,10 +88,10 @@ async function iniciarPrompt() {
           console.log("Consulta cancelada.");
         }
 
-        iniciarPrompt();
+        startPrompt();
       });
     },
   );
 }
 
-iniciarPrompt();
+startPrompt();
