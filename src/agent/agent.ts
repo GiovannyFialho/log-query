@@ -76,10 +76,9 @@ async function startPrompt() {
       rl.question("Deseja executar a consulta SQL? (s/n): ", async (answer) => {
         if (answer.toLowerCase() === "s") {
           try {
-            console.log("Consulta aprovada!");
             const result = database.prepare(sql).all();
 
-            console.log("Resultado da consulta SQL:");
+            console.log("Consulta aprovada! Resultado da consulta SQL:");
             console.table(result);
           } catch (error) {
             console.error("Erro ao executar a consulta no banco:", error);
