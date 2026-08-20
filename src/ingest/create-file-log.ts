@@ -42,14 +42,14 @@ for (let i = 1; i <= 30; i++) {
     id: faker.string.uuid(),
     ip: faker.internet.ip(),
     username: faker.internet.username({
-      firstName,
-      lastName,
+      firstName: firstName.toLocaleLowerCase(),
+      lastName: lastName.toLocaleLowerCase(),
     }),
     first_name: firstName,
     last_name: lastName,
     email: faker.internet.email({
-      firstName,
-      lastName,
+      firstName: firstName.toLocaleLowerCase(),
+      lastName: lastName.toLocaleLowerCase(),
     }),
     location: faker.location.city(),
     job_area: faker.helpers.arrayElement(jobAreas),
