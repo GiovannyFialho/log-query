@@ -12,7 +12,7 @@ const rl = createInterface({
 
 async function iniciarPrompt() {
   rl.question(
-    "\nDigite sua pergunta (ou 'sair' para encerrar): ",
+    "\n Digite sua pergunta (ou 'sair' para encerrar): ",
 
     async (question) => {
       if (question.toLowerCase().trim() === "sair") {
@@ -73,7 +73,7 @@ async function iniciarPrompt() {
         return;
       }
 
-      console.log(`\nSQL Gerada: ${sql}`);
+      console.log(`\n SQL Gerada: ${sql}`);
 
       rl.question("Deseja executar a consulta SQL? (s/n): ", async (answer) => {
         if (answer.toLowerCase() === "s") {
