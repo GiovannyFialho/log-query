@@ -10,72 +10,89 @@ const rl = createInterface({
   output: process.stdout,
 });
 
-rl.question("Digite sua pergunta: ", async (question) => {
-  const result = await generateText({
-    model: google("gemini-3.5-flash-lite"),
-    prompt: `
-      Você é um assistente especializado em SQLite.
+async function iniciarPrompt() {
+  rl.question(
+    "\nDigite sua pergunta (ou 'sair' para encerrar): ",
 
-      Você precisa transformar a pergunta do usuário em uma consulta SQL.
+    async (question) => {
+      if (question.toLowerCase().trim() === "sair") {
+        console.log("Encerrando o programa...");
+        rl.close();
 
-      A tabela disponível no banco é:
+        return;
+      }
 
-      access_logs (
-        id TEXT,
-        ip TEXT,
-        username TEXT,
-        first_name TEXT,
-        last_name TEXT,
-        email TEXT,
-        location TEXT,
-        job_area TEXT,
-        company TEXT,
-        job_title TEXT,
-        timestamp TEXT
-      )
+      const result = await generateText({
+        model: google("gemini-3.5-flash-lite"),
+        prompt: `
+        Você é um assistente especializado em SQLite. 
+        
+        Você precisa transformar a pergunta do usuário em uma consulta SQL. 
+        
+        A tabela disponível no banco é: 
+        access_logs ( 
+          id TEXT, 
+          ip TEXT, 
+          username TEXT, 
+          first_name TEXT, 
+          last_name TEXT, 
+          email TEXT, 
+          location TEXT, 
+          job_area TEXT, 
+          company TEXT, 
+          job_title TEXT, 
+          timestamp TEXT 
+        ) 
+          
+        Gere apenas uma consulta SELECT válida para SQLite. 
+        
+        Não use blocos Markdown ou qualquer outro tipo de formatação, inclusive usando aspas. 
+        
+        Retorne somente a consulta SQL em texto puro. 
+        
+        Não use INSERT, UPDATE,  DELETE, 
+        DROP, ALTER, CREATE, REPLACE, PRAGMA, 
+        ATTACH, DETACH ou VACUUM.
+        
+        Pergunta do usuário: ${question}
+      `,
+      });
 
-      Gere apenas uma consulta SELECT válida para SQLite.
+      const sql = result.text
+        .replace(/```sql/gi, "")
+        .replace(/```/g, "")
+        .trim();
 
-      Não use blocos Markdown ou qualquer outro tipo de formatação, inclusive usando aspas.
-      Retorne somente a consulta SQL em texto puro.
+      if (!isSafeQuery(sql)) {
+        console.log(
+          "A consulta SQL gerada não é segura. Por favor, tente novamente.",
+        );
 
-      Não use INSERT, UPDATE, DELETE, DROP, ALTER, CREATE,
-      REPLACE, PRAGMA, ATTACH, DETACH ou VACUUM.
+        iniciarPrompt();
 
-      Pergunta do usuário: ${question}
-    `,
-  });
+        return;
+      }
 
-  const sql = result.text
-    .replace(/```sql/gi, "")
-    .replace(/```/g, "")
-    .trim();
+      console.log(`\nSQL Gerada: ${sql}`);
 
-  if (!isSafeQuery(sql)) {
-    console.log(
-      "A consulta SQL gerada não é segura. Por favor, tente novamente.",
-    );
+      rl.question("Deseja executar a consulta SQL? (s/n): ", async (answer) => {
+        if (answer.toLowerCase() === "s") {
+          try {
+            console.log("Consulta aprovada!");
+            const result = database.prepare(sql).all();
+            console.log("Resultado da consulta SQL:");
+            console.table(result);
+          } catch (error) {
+            console.error("Erro ao executar a consulta no banco:", error);
+          }
+        } else {
+          console.log("Consulta cancelada.");
+        }
 
-    rl.close();
+        iniciarPrompt();
+      });
+    },
+  );
+}
 
-    return;
-  }
-
-  rl.question("Deseja executar a consulta SQL? (s/n): ", async (answer) => {
-    if (answer.toLowerCase() !== "s") {
-      console.log("Consulta cancelada.");
-      rl.close();
-
-      return;
-    }
-
-    console.log("Consulta aprovada!");
-
-    const result = database.prepare(sql).all();
-
-    console.log("Resultado da consulta SQL:");
-    console.table(result);
-
-    rl.close();
-  });
-});
+iniciarPrompt();
