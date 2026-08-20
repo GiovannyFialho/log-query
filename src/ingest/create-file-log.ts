@@ -28,7 +28,7 @@ const jobAreas = [
   "Customer Success",
 ];
 
-for (let i = 1; i <= 30; i++) {
+for (let i = 1; i <= 50; i++) {
   if (i % 100 === 0) {
     stream.write("\n");
 
