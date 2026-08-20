@@ -59,6 +59,23 @@ Inicia a aplicação interativa de terminal. O agente carrega as variáveis de a
 npm run agent
 ```
 
+### 4. Executar testes
+
+O projeto utiliza o test runner nativo do Node.js (`node:test`) e o módulo nativo de asserções (`node:assert`), sem a utilização de bibliotecas externas como Jest ou Vitest.
+
+Os testes cobrem principalmente:
+
+- Regras de validação das consultas SQL.
+- Consultas realizadas no banco SQLite.
+- Contagem de registros.
+- Empresas distintas.
+- Ordenação dos acessos mais recentes.
+- Comportamentos esperados das queries.
+
+```bash
+npm run test
+```
+
 ---
 
 ## 🧠 Como Funciona o Agente SQL
