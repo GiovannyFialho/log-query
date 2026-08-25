@@ -1,5 +1,6 @@
 node_modules
-.env*
 
-src/database/access.log
-src/database/logs.db
+.env*
+*.env
+*.log
+*.db
