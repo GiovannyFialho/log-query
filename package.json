@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node src/index.ts",
-    "create-file-log": "node src/ingest/create-file-log.ts",
+    "seed": "node src/ingest/seed.ts",
     "ingest-file-log": "node src/ingest/ingest-file-log.ts",
     "agent": "node --env-file=.env.local src/agent/agent.ts",
     "test": "node --test"

@@ -40,7 +40,7 @@ O projeto possui comandos mapeados no `package.json` para cobrir todo o ciclo de
 Gera um arquivo de logs fictícios estruturados com dados realistas (como IP, usuário, empresa, etc.) usando a biblioteca Faker.
 
 ```bash
-npm run create-file-log
+npm run seed
 ```
 
 ### 2. Ingerir o Arquivo de Log
