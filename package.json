@@ -2,6 +2,7 @@
   "name": "log-query",
   "version": "1.0.0",
   "scripts": {
+    "env:setup": "cp .env.example .env.local",
     "seed": "node src/ingest/seed.ts",
     "ingest": "node src/ingest/ingest.ts",
     "agent": "node --env-file=.env.local src/agent/agent.ts",
