@@ -1,10 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { createWriteStream, mkdirSync, statSync } from "node:fs";
 
-mkdirSync("./src/database", { recursive: true });
+import { LOG_FILE, LOG_INTERVAL } from "../index.ts";
 
-const LOG_FILE = "access.log";
-const LOG_INTERVAL = 1 * 1000; // 1s
+mkdirSync("./src/database", { recursive: true });
 
 const maxRecords = Number(process.argv[2] || Infinity);
 
@@ -43,7 +42,6 @@ const jobAreas: string[] = [
 ];
 
 type User = {
-  id: string;
   ip: string;
   username: string;
   first_name: string;
@@ -56,6 +54,7 @@ type User = {
 };
 
 type LogEntry = User & {
+  id: string;
   timestamp: string;
 };
 
@@ -68,7 +67,6 @@ function generateUser(): User {
   const lastName = faker.person.lastName();
 
   return {
-    id: faker.string.uuid(),
     ip: faker.internet.ip(),
     username: faker.internet.username({
       firstName: firstName.toLowerCase(),
@@ -90,6 +88,7 @@ function generateUser(): User {
 function generateLogEntry(user: User): LogEntry {
   return {
     ...user,
+    id: faker.string.uuid(),
     timestamp: faker.date.recent({ days: 30 }).toISOString(),
   };
 }

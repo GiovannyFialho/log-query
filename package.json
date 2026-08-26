@@ -2,9 +2,8 @@
   "name": "log-query",
   "version": "1.0.0",
   "scripts": {
-    "start": "node src/index.ts",
     "seed": "node src/ingest/seed.ts",
-    "ingest-file-log": "node src/ingest/ingest-file-log.ts",
+    "ingest": "node src/ingest/ingest.ts",
     "agent": "node --env-file=.env.local src/agent/agent.ts",
     "test": "node --test"
   },
@@ -17,6 +16,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.46",
-    "ai": "^7.0.69"
+    "ai": "^7.0.69",
+    "zod": "^4.4.3"
   }
 }
