@@ -2,66 +2,110 @@
 
 Aplicação de terminal desenvolvida em Node.js para processamento, ingestão e consulta inteligente de arquivos de logs.
 
-O projeto gera logs fictícios de acesso, processa e ingere esses registros em formato JSON Lines utilizando streams para alta performance, armazena tudo em um banco de dados SQLite e utiliza Inteligência Artificial (Google Gemini via AI SDK) para transformar perguntas em linguagem natural diretamente em consultas SQL seguras através do terminal.
+O projeto gera logs fictícios de acesso, processa e ingere esses registros em formato JSON Lines utilizando streams para alta performance, armazena os dados em um banco de dados SQLite e utiliza Inteligência Artificial (Google Gemini via AI SDK) para transformar perguntas em linguagem natural em consultas SQL seguras através do terminal.
 
 ---
 
 ## 🛠️ Tecnologias e Dependências
 
-- **Runtime:** Node.js (v20+ recomendado com suporte nativo a `--env-file`)
+- **Runtime:** Node.js (v20+ recomendado, com suporte nativo a `--env-file`)
 - **Linguagem:** TypeScript
 - **Banco de Dados:** SQLite
-- **Orquestração de IA:** [Vercel AI SDK](https://sdk.vercel.ai/) & `@ai-sdk/google`
-- **Geração de Dados:** [@faker-js/faker](https://fakerjs.dev/)
+- **Orquestração de IA:** [Vercel AI SDK](https://ai-sdk.dev/) & `@ai-sdk/google`
+- **Validação de dados:** Zod
+- **Geração de dados:** [@faker-js/faker](https://fakerjs.dev/)
 
 ---
 
 ## 🚀 Instalação e Configuração
 
-1. Instale as dependências do projeto:
+### 1. Instalar as dependências e configurar o ambiente
 
-   ```bash
-   npm install
-   ```
+Após clonar o projeto, instale as dependências:
 
-2. Crie um arquivo `.env.local` na raiz do projeto com base no arquivo `env.local-example` e adicione a sua chave de API da Google:
-   ```env
-   GOOGLE_GENERATIVE_AI_API_KEY=sua_chave_api_aqui
-   ```
+```bash
+npm run setup
+```
+
+Em seguida, crie o arquivo `.env.local` a partir do arquivo `.env.example`:
+
+```bash
+npm run env:setup
+```
+
+Depois, abra o arquivo `.env.local` e adicione sua chave de API do Google:
+
+```env
+GOOGLE_GENERATIVE_AI_API_KEY=sua_chave_api_aqui
+```
+
+> O arquivo `.env.local` é utilizado pelo agente para acessar o modelo do Google Gemini.
 
 ---
 
-## 🖥️ Scripts Disponíveis e Fluxo de Execução
+## 🖥️ Scripts Disponíveis
 
-O projeto possui comandos mapeados no `package.json` para cobrir todo o ciclo de vida dos dados, desde a criação até a consulta. Execute-os na ordem abaixo:
+### `npm start`
 
-### 1. Criar o Arquivo de Log
+Inicia a aplicação de terminal e o agente de consultas SQL.
 
-Gera um arquivo de logs fictícios estruturados com dados realistas (como IP, usuário, empresa, etc.) usando a biblioteca Faker.
+```bash
+npm start
+```
+
+O agente permite fazer perguntas em linguagem natural, gerar consultas SQL com auxílio da IA, revisar a query antes da execução e visualizar os resultados.
+
+Este é o comando principal para utilizar a aplicação.
+
+---
+
+### `npm run dev`
+
+Inicia a aplicação em modo de desenvolvimento utilizando o `--watch` do Node.js.
+
+```bash
+npm run dev
+```
+
+Sempre que um arquivo for alterado, a aplicação é reiniciada automaticamente.
+
+Esse comando é útil durante o desenvolvimento e para realizar ajustes no projeto.
+
+---
+
+### `npm run seed`
+
+Gera o arquivo de logs fictícios utilizado pelo projeto.
 
 ```bash
 npm run seed
 ```
 
-### 2. Ingerir o Arquivo de Log
+Os registros são gerados em formato JSON Lines (`.jsonl`) e contêm dados fictícios de acesso, como IP, usuário, empresa, cargo, localização e data de acesso.
 
-Lê o arquivo JSON Lines gerado e faz o processamento via streams de forma eficiente, populando o banco de dados SQLite local.
+---
 
-```bash
-npm run ingest-file-log
-```
+### `npm run ingest`
 
-### 3. Iniciar o Agente de Consulta (IA)
-
-Inicia a aplicação interativa de terminal. O agente carrega as variáveis de ambiente e aguarda suas perguntas em português para convertê-las em queries SQL automáticas.
+Processa o arquivo de logs e insere os registros no banco de dados SQLite.
 
 ```bash
-npm run agent
+npm run ingest
 ```
 
-### 4. Executar testes
+A ingestão utiliza streams para processar os registros de forma eficiente, evitando a necessidade de carregar todo o arquivo em memória.
 
-O projeto utiliza o test runner nativo do Node.js (`node:test`) e o módulo nativo de asserções (`node:assert`), sem a utilização de bibliotecas externas como Jest ou Vitest.
+---
+
+### `npm run test`
+
+Executa os testes utilizando o test runner nativo do Node.js.
+
+```bash
+npm run test
+```
+
+O projeto utiliza `node:test` e `node:assert`, sem bibliotecas externas como Jest ou Vitest.
 
 Os testes cobrem principalmente:
 
@@ -72,19 +116,159 @@ Os testes cobrem principalmente:
 - Ordenação dos acessos mais recentes.
 - Comportamentos esperados das queries.
 
+---
+
+### `npm run env:setup`
+
+Cria o arquivo `.env.local` automaticamente a partir do `.env.example`.
+
 ```bash
-npm run test
+npm run env:setup
+```
+
+Esse comando facilita a configuração inicial do ambiente.
+
+---
+
+## 🔄 Fluxo do Projeto
+
+Depois de instalar as dependências e configurar o `.env.local`, o fluxo para preparar os dados é:
+
+```bash
+npm run seed
+```
+
+```bash
+npm run ingest
+```
+
+Depois disso, basta iniciar o agente:
+
+```bash
+npm start
+```
+
+O fluxo completo fica:
+
+```text
+Seed
+  ↓
+Arquivo JSON Lines
+  ↓
+Ingest
+  ↓
+SQLite
+  ↓
+Start
+  ↓
+Pergunta em linguagem natural
+  ↓
+Google Gemini
+  ↓
+SQL
+  ↓
+Validação
+  ↓
+Confirmação do usuário
+  ↓
+SQLite
+  ↓
+Resultado
+  ↓
+Resposta em linguagem natural
 ```
 
 ---
 
 ## 🧠 Como Funciona o Agente SQL
 
-Quando você executa o comando `npm run agent`, o terminal entra em um loop interativo contínuo:
+Quando você executa:
 
-1. **Pergunta:** Você digita o que quer saber (ex: _"Quantos usuários únicos acessaram da empresa Google?"_).
-2. **Tratamento por IA:** O modelo `gemini-3.5-flash-lite` interpreta a estrutura da tabela `access_logs` e formula a query SELECT ideal.
-3. **Camada de Segurança:** O código valida se a query gerada é estritamente de leitura (bloqueando comandos como `DROP`, `DELETE` ou `INSERT`).
-4. **Confirmação:** O sistema exibe o SQL gerado na tela e pergunta se você deseja executá-lo `(s/n)`.
-5. **Resultado:** Se aprovado, exibe os dados formatados em formato de tabela (`console.table`) e reinicia o prompt para uma nova pergunta sem derrubar o processo.
-6. **Encerramento:** Para sair do loop, basta digitar `sair` a qualquer momento no prompt de perguntas.
+```bash
+npm start
+```
+
+o terminal entra em um loop interativo contínuo.
+
+### 1. Pergunta
+
+Você digita o que deseja saber sobre os dados.
+
+Por exemplo:
+
+```text
+Quantos usuários únicos acessaram da empresa Google?
+```
+
+### 2. Tratamento por IA
+
+O modelo `gemini-3.5-flash-lite` recebe a pergunta e o schema disponível da tabela `access_logs`.
+
+A IA gera uma consulta SQL utilizando apenas operações de leitura.
+
+### 3. Validação
+
+Antes de executar a consulta, o código valida a SQL gerada.
+
+Comandos que podem modificar ou manipular o banco, como `DROP`, `DELETE`, `INSERT`, `UPDATE` e outros comandos bloqueados, são rejeitados.
+
+### 4. Confirmação
+
+A aplicação exibe a SQL gerada e sua explicação e solicita uma confirmação antes de executar a consulta.
+
+```text
+Generated SQL:
+SELECT COUNT(*) FROM access_logs
+
+Explanation:
+Calculates the total number of records in the access_logs table.
+
+Do you want to execute? (y/n):
+```
+
+### 5. Execução
+
+Se a consulta for aprovada, ela é executada no SQLite e os dados retornados são utilizados para gerar uma resposta amigável em linguagem natural.
+
+A resposta é apresentada no mesmo idioma utilizado na pergunta.
+
+### 6. Novo ciclo
+
+Depois de apresentar o resultado, o agente volta a aguardar uma nova pergunta.
+
+Para encerrar a aplicação, pressione `CTRL+C`.
+
+---
+
+## 🔐 Segurança
+
+Como a consulta SQL é gerada por Inteligência Artificial, o projeto possui uma camada de validação antes da execução.
+
+A aplicação:
+
+- Permite apenas consultas de leitura.
+- Bloqueia comandos que podem modificar a estrutura ou os dados do banco.
+- Valida a SQL gerada antes de enviá-la ao SQLite.
+- Solicita confirmação do usuário antes da execução.
+- Não executa automaticamente uma query gerada pela IA.
+
+Essa camada existe como parte do projeto de estudo e não deve ser considerada uma solução completa de segurança para aplicações em produção.
+
+---
+
+## 📚 Objetivo do Projeto
+
+Este projeto faz parte dos estudos do curso **Fundamentos do Node.js**, da Rocketseat.
+
+O objetivo principal é praticar conceitos fundamentais do Node.js, incluindo:
+
+- Streams.
+- Leitura e escrita de arquivos.
+- Processamento de grandes volumes de dados.
+- CLI e interação com o terminal.
+- SQLite.
+- Queries SQL.
+- Variáveis de ambiente.
+- Testes com ferramentas nativas do Node.js.
+- Integração com modelos de Inteligência Artificial.
+- Validação e processamento de dados com TypeScript e Zod.

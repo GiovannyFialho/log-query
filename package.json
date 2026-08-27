@@ -4,6 +4,7 @@
   "scripts": {
     "start": "node --env-file=.env.local src/index.ts",
     "dev": "node --env-file=.env.local --watch src/index.ts",
+    "setup": "npm install && npm run env:setup",
     "env:setup": "cp .env.example .env.local",
     "seed": "node src/ingest/seed.ts",
     "ingest": "node src/ingest/ingest.ts",
