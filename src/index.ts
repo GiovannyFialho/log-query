@@ -49,7 +49,7 @@ while (true) {
     console.log(styleText("yellow", explanation));
 
     const confirm = await prompt(
-      styleText(["bold", "green"], "\n ⚠️ Do you wish to execute? (y/n): "),
+      styleText(["bold", "green"], "\n ⚠️  Do you wish to execute? (y/n): "),
     );
 
     if (confirm.toLowerCase() === "y") {

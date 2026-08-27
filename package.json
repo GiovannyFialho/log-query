@@ -8,7 +8,8 @@
     "env:setup": "cp .env.example .env.local",
     "seed": "node src/ingest/seed.ts",
     "ingest": "node src/ingest/ingest.ts",
-    "test": "node --test"
+    "test:watch": "node --experimental-test-module-mocks --watch --test src/tests/*.test.ts",
+    "test": "node --experimental-test-module-mocks --test src/tests/*.test.ts"
   },
   "license": "ISC",
   "type": "module",

@@ -21,17 +21,13 @@ O projeto gera logs fictícios de acesso, processa e ingere esses registros em f
 
 ### 1. Instalar as dependências e configurar o ambiente
 
-Após clonar o projeto, instale as dependências:
+Após clonar o projeto, execute:
 
 ```bash
 npm run setup
 ```
 
-Em seguida, crie o arquivo `.env.local` a partir do arquivo `.env.example`:
-
-```bash
-npm run env:setup
-```
+Esse comando instala todas as dependências do projeto e cria automaticamente o arquivo `.env.local` a partir do `.env.example`.
 
 Depois, abra o arquivo `.env.local` e adicione sua chave de API do Google:
 
@@ -44,6 +40,18 @@ GOOGLE_GENERATIVE_AI_API_KEY=sua_chave_api_aqui
 ---
 
 ## 🖥️ Scripts Disponíveis
+
+### `npm run setup`
+
+Instala as dependências do projeto e configura o arquivo `.env.local`.
+
+```bash
+npm run setup
+```
+
+Esse comando executa a instalação das dependências e, em seguida, utiliza o script `env:setup` para criar o arquivo `.env.local` a partir do `.env.example`.
+
+---
 
 ### `npm start`
 
@@ -97,15 +105,21 @@ A ingestão utiliza streams para processar os registros de forma eficiente, evit
 
 ---
 
-### `npm run test`
+### `npm test`
 
 Executa os testes utilizando o test runner nativo do Node.js.
 
 ```bash
-npm run test
+npm test
 ```
 
-O projeto utiliza `node:test` e `node:assert`, sem bibliotecas externas como Jest ou Vitest.
+Os testes utilizam `node:test` e `node:assert`, além do suporte experimental de mocks de módulos nativos do Node.js.
+
+Os testes são executados a partir dos arquivos localizados em:
+
+```text
+src/tests/*.test.ts
+```
 
 Os testes cobrem principalmente:
 
@@ -114,7 +128,22 @@ Os testes cobrem principalmente:
 - Contagem de registros.
 - Empresas distintas.
 - Ordenação dos acessos mais recentes.
+- Integração com o modelo de linguagem.
 - Comportamentos esperados das queries.
+
+---
+
+### `npm run test:watch`
+
+Executa os testes em modo de observação utilizando o `--watch` do Node.js.
+
+```bash
+npm run test:watch
+```
+
+Sempre que um arquivo relacionado aos testes for alterado, os testes são executados novamente automaticamente.
+
+Esse comando é útil durante o desenvolvimento e criação de novos testes.
 
 ---
 
@@ -126,13 +155,23 @@ Cria o arquivo `.env.local` automaticamente a partir do `.env.example`.
 npm run env:setup
 ```
 
-Esse comando facilita a configuração inicial do ambiente.
+Esse comando também é executado automaticamente pelo `npm run setup`.
+
+Pode ser utilizado separadamente caso seja necessário recriar o arquivo `.env.local`.
 
 ---
 
 ## 🔄 Fluxo do Projeto
 
-Depois de instalar as dependências e configurar o `.env.local`, o fluxo para preparar os dados é:
+Depois de clonar o projeto, execute:
+
+```bash
+npm run setup
+```
+
+Configure a variável `GOOGLE_GENERATIVE_AI_API_KEY` no arquivo `.env.local`.
+
+Em seguida, prepare os dados:
 
 ```bash
 npm run seed
@@ -142,7 +181,7 @@ npm run seed
 npm run ingest
 ```
 
-Depois disso, basta iniciar o agente:
+Depois disso, inicie o agente:
 
 ```bash
 npm start
@@ -151,6 +190,10 @@ npm start
 O fluxo completo fica:
 
 ```text
+Setup
+  ↓
+Dependências + .env.local
+  ↓
 Seed
   ↓
 Arquivo JSON Lines
@@ -206,6 +249,8 @@ O modelo `gemini-3.5-flash-lite` recebe a pergunta e o schema disponível da tab
 
 A IA gera uma consulta SQL utilizando apenas operações de leitura.
 
+Além da consulta, o modelo fornece uma explicação sobre o que a query faz.
+
 ### 3. Validação
 
 Antes de executar a consulta, o código valida a SQL gerada.
@@ -218,9 +263,11 @@ A aplicação exibe a SQL gerada e sua explicação e solicita uma confirmação
 
 ```text
 Generated SQL:
+
 SELECT COUNT(*) FROM access_logs
 
 Explanation:
+
 Calculates the total number of records in the access_logs table.
 
 Do you want to execute? (y/n):
@@ -228,7 +275,9 @@ Do you want to execute? (y/n):
 
 ### 5. Execução
 
-Se a consulta for aprovada, ela é executada no SQLite e os dados retornados são utilizados para gerar uma resposta amigável em linguagem natural.
+Se a consulta for aprovada, ela é executada no SQLite.
+
+Os dados retornados são então enviados novamente ao modelo de linguagem para gerar uma resposta amigável e compreensível.
 
 A resposta é apresentada no mesmo idioma utilizado na pergunta.
 
@@ -256,6 +305,30 @@ Essa camada existe como parte do projeto de estudo e não deve ser considerada u
 
 ---
 
+## 🧪 Testes
+
+Os testes utilizam as ferramentas nativas de testes do Node.js, incluindo:
+
+- `node:test`
+- `node:assert`
+- `--experimental-test-module-mocks`
+
+Os testes podem ser executados normalmente:
+
+```bash
+npm test
+```
+
+Ou em modo de desenvolvimento:
+
+```bash
+npm run test:watch
+```
+
+O suporte a mocks de módulos permite testar a integração com o modelo de linguagem sem realizar chamadas reais à API durante os testes.
+
+---
+
 ## 📚 Objetivo do Projeto
 
 Este projeto faz parte dos estudos do curso **Fundamentos do Node.js**, da Rocketseat.
@@ -270,5 +343,6 @@ O objetivo principal é praticar conceitos fundamentais do Node.js, incluindo:
 - Queries SQL.
 - Variáveis de ambiente.
 - Testes com ferramentas nativas do Node.js.
+- Mocks de módulos.
 - Integração com modelos de Inteligência Artificial.
 - Validação e processamento de dados com TypeScript e Zod.

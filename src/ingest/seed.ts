@@ -1,7 +1,9 @@
 import { faker } from "@faker-js/faker";
 import { createWriteStream, mkdirSync, statSync } from "node:fs";
 
+import type { User } from "../@types/intex.ts";
 import { LOG_FILE, LOG_INTERVAL } from "../constants.ts";
+import { generateLogEntry, generateUser } from "../utils/index.ts";
 
 mkdirSync("./src/database", { recursive: true });
 
@@ -18,79 +20,8 @@ if (
 
 const stream = createWriteStream(`./src/database/${LOG_FILE}`);
 
-const companies: string[] = [
-  "TechSolutions",
-  "InnovaCorp",
-  "AlphaMedia",
-  "QuantumLabs",
-  "DeltaFinance",
-  "NexusLogistics",
-  "ApexHealth",
-  "EcoEnergy",
-  "StellarRetail",
-  "VortexConsulting",
-];
-
-const jobAreas: string[] = [
-  "Engineering",
-  "Marketing",
-  "Sales",
-  "Finance",
-  "Human Resources",
-  "Operations",
-  "Customer Success",
-];
-
-type User = {
-  ip: string;
-  username: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  location: string;
-  job_area: string;
-  company: string;
-  job_title: string;
-};
-
-type LogEntry = User & {
-  id: string;
-  timestamp: string;
-};
-
 function convertToGB(bytes: number): string {
   return (bytes / 1024 / 1024 / 1024).toFixed(4);
-}
-
-function generateUser(): User {
-  const firstName = faker.person.firstName();
-  const lastName = faker.person.lastName();
-
-  return {
-    ip: faker.internet.ip(),
-    username: faker.internet.username({
-      firstName: firstName.toLowerCase(),
-      lastName: lastName.toLowerCase(),
-    }),
-    first_name: firstName,
-    last_name: lastName,
-    email: faker.internet.email({
-      firstName: firstName.toLowerCase(),
-      lastName: lastName.toLowerCase(),
-    }),
-    location: faker.location.city(),
-    job_area: faker.helpers.arrayElement(jobAreas),
-    company: faker.helpers.arrayElement(companies),
-    job_title: faker.person.jobTitle(),
-  };
-}
-
-function generateLogEntry(user: User): LogEntry {
-  return {
-    ...user,
-    id: faker.string.uuid(),
-    timestamp: faker.date.recent({ days: 30 }).toISOString(),
-  };
 }
 
 function writeRecord(line: string): Promise<void> {
