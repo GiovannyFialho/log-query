@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { createWriteStream, mkdirSync, statSync } from "node:fs";
 
-import { LOG_FILE, LOG_INTERVAL } from "../index.ts";
+import { LOG_FILE, LOG_INTERVAL } from "../constants.ts";
 
 mkdirSync("./src/database", { recursive: true });
 
@@ -104,10 +104,10 @@ function writeRecord(line: string): Promise<void> {
 }
 
 console.log(
-  `Generating log file with fake data in ${LOG_FILE}... (Ctrl+C to stop)`,
+  `🎲 Generating log file with fake data in ${LOG_FILE}... (Ctrl+C to stop)`,
 );
 
-console.log(`Max records to generate: ${maxRecords.toLocaleString()}`);
+console.log(`💿 Max records to generate: ${maxRecords.toLocaleString()}`);
 
 const users: User[] = Array.from({ length: 5 }, generateUser);
 

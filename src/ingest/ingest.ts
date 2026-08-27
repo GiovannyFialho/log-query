@@ -3,15 +3,14 @@ import { createInterface } from "node:readline";
 
 import { createDb } from "../database/database.ts";
 
-import { LOG_FILE, LOG_INTERVAL } from "../index.ts";
+import { DB_NAME, LOG_FILE, LOG_INTERVAL } from "../constants.ts";
 
-const db = createDb("./src/database/access_logs.db");
-db.exec(`DELETE FROM access_logs`);
-
+const db = createDb(`./src/database/${DB_NAME}`);
 const stream = createReadStream(`./src/database/${LOG_FILE}`, {
   encoding: "utf-8",
 });
 const rl = createInterface({ input: stream, crlfDelay: Infinity });
+
 let count = 0;
 
 console.log("Reading file line by line...");
